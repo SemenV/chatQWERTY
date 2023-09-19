@@ -1,0 +1,20 @@
+*.class
+*.swp
+*.cache
+*~
+
+bin/**/*
+target/**/*
+build/**/*
+gen/**/*
+
+# tmp source folder
+tmp/**/*
+
+.project
+.classpath
+.settings/
+
+
+# js plugin
+WebContent/js_plugin/lib/**/*
