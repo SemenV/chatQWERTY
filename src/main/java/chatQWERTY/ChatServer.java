@@ -9,110 +9,68 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ChatServer {
-	Thread chatReader;
-	Thread chatWriter;
-	ServerSocket ss;
-	Socket fs;
+	List<Socket> allSockets = new LinkedList<Socket>();
+	List<Thread> allThreads;
+	ServerSocket serverSocket;
 	
 	public ChatServer() {
 		try {
-			this.ss = new ServerSocket();
+			this.serverSocket = new ServerSocket();
 			InetSocketAddress isa = new InetSocketAddress("127.0.0.1", 5050);
-			ss.bind(isa);
-			this.fs = ss.accept();
+			serverSocket.bind(isa);
+			while (true) {			
+				Socket newSocket = serverSocket.accept();
+
+				Thread newThread = new Thread(new Runnable() {	
+					@Override
+					public void run() {
+						try {
+							sendToAllIfAvailable(newSocket);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						
+					}
+				});
+				newThread.start();		
+				allSockets.add(newSocket);	
+			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		chatReader = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				consoleReadAndWriteSocket();
-			}
-		});
-		
-		
-		chatWriter = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				socketReadAndWriteConsole();
-			}
-		});
-		
-		chatReader.start();
-		chatWriter.start();
+
 	
 	}
 	
-	
-	public void socketReadAndWriteConsole() {
-		InputStream is;
-		try {
-			is = fs.getInputStream();
-			InputStreamReader isr = new InputStreamReader(is);
-			while (true) {
-				if (isr.ready()) {
-					BufferedReader reader = new BufferedReader(isr);
-					System.out.println(reader.readLine());
+	public void sendToAllIfAvailable(Socket mainSocket) throws IOException {
+		InputStream is = mainSocket.getInputStream();
+		InputStreamReader isr = new InputStreamReader(is);
+		while (true) {
+			if (isr.ready()) {
+				BufferedReader reader = new BufferedReader(isr);
+				String line = reader.readLine();
+				for (Socket socket : allSockets) {
+					if (socket.equals(mainSocket)) {
+					} else {
+						OutputStream os = socket.getOutputStream();
+						PrintWriter outt= new PrintWriter(os);
+						char nlc = '\n';
+						
+						outt.print(line + nlc);
+						outt.flush();
+					}		
 				}
-				else {	
-				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+			else {	
+			}
+		}	
 	}
 	
-	public void consoleReadAndWriteSocket() {
-		try {
-			OutputStream os = fs.getOutputStream();
-			PrintWriter outt= new PrintWriter(os);
-			
-			InputStream is = System.in;
-			InputStreamReader isr = new InputStreamReader(is);
-			BufferedReader reader = new BufferedReader(isr);
-			
-			char nlc = '\n';
-			
-			while(true ) {
-				outt.print(reader.readLine() + nlc);
-				outt.flush();
-			}
-			
 
-			
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-//	public void listen() throws IOException {
-//		ServerSocket ss = new ServerSocket();
-//		InetSocketAddress isa = new InetSocketAddress("127.0.0.1", 5050);
-//		ss.bind(isa);
-//		Socket s1 = ss.accept();
-//		
-//		InputStream is = s1.getInputStream();
-//		InputStreamReader isr = new InputStreamReader(is);
-//
-//		
-//		while (true) {
-//			if (isr.ready()) {
-//				BufferedReader reader = new BufferedReader(isr);
-//				System.out.println(reader.readLine());
-//			}
-//			else {
-//				
-//			}
-//		
-//		}
-//	}
 }
