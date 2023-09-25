@@ -20,3 +20,5 @@ tmp/**/*
 WebContent/js_plugin/lib/**/*
 /bin/
 /target/
+
+*.bak
