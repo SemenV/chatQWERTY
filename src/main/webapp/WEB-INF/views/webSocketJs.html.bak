@@ -1,0 +1,24 @@
+
+
+var socket = new WebSocket("ws://127.0.0.1:8080/chatQWERTY/my");
+
+socket.onopen = function (event) {
+      console.log('connection is open!')          
+    };
+
+  socket.addEventListener('message', (event) => {
+	const node = document.createElement("div");
+	node.innerHTML = event.data;
+	document.getElementById("chatText").prepend(node); 
+    console.log( event.data);
+
+  });
+  
+function sendMessage() {
+	let ourTextArea = document.getElementById("ourTextArea");
+	let ourText = ourTextArea.value ;
+	ourTextArea.value  = "";
+	let ourName = document.getElementById("ourInput");
+	socket.send(ourName.value  + ": " + ourText) ;
+};
+

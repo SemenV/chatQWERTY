@@ -18,3 +18,5 @@ tmp/**/*
 
 # js plugin
 WebContent/js_plugin/lib/**/*
+/bin/
+/target/
