@@ -8,26 +8,33 @@ import jakarta.websocket.Session;
 public class SessionListner  {
 	
 	private static List<Session> allSession = new ArrayList<Session>();
-
+	private Object lock = new Object();
+	
+	
 	public SessionListner() {
 	}
 		
 	
-	public void registerSession(Session currentSes) {
-		SessionListner.allSession.add(currentSes);
+	public void  registerSession(Session currentSes) {
+		synchronized (lock) {
+			SessionListner.allSession.add(currentSes);
+		}
 	}
 	
-	public void removeSession(Session currentSes) {
-		for (Session ses : allSession) {
-			if (ses.equals(currentSes)) {
-				SessionListner.allSession.remove(currentSes);
+	public synchronized void removeSession(Session currentSes) {
+		synchronized (lock) {
+			for (Session ses : allSession) {
+				if (ses.equals(currentSes)) {
+					SessionListner.allSession.remove(currentSes);
+				}
 			}
 		}
-		
 	}
 	
-	public List<Session> getAllSessions() {
-		return allSession;
+	public synchronized List<Session> getAllSessions() {
+		synchronized (lock) {
+			return allSession;
+		}
 	}
 	
 
