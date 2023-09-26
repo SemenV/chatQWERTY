@@ -8,7 +8,7 @@ import jakarta.websocket.Session;
 public class SessionListner  {
 	
 	private static List<Session> allSession = new ArrayList<Session>();
-	private Object lock = new Object();
+	private static Object lock = new Object();
 	
 	
 	public SessionListner() {
